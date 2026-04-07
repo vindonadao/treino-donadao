@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Treino Donadao">
+<meta name="theme-color" content="#00C853">
+<title>Treino Donadao</title>
+<style>
+:root{--g:#00C853;--gl:#E8F5E9;--gd:#007A2F;--r:#D85A30;--rl:#FAECE7;--b:#185FA5;--bl:#E6F1FB;--a:#BA7517;--al:#FAEEDA;--p:#993556;--pl:#FBEAF0;--bg:#f2f2f7;--card:#fff;--tx:#1a1a1a;--mu:#666;--br:#e5e5ea;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;}
+.nav{background:var(--g);padding:52px 20px 18px;}
+.nav h1{font-size:22px;font-weight:700;color:#fff;}
+.nav p{font-size:13px;color:rgba(255,255,255,.75);margin-top:2px;}
+.tab-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--br);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px);}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0 8px;cursor:pointer;gap:3px;border:none;background:none;color:var(--mu);font-size:11px;font-weight:500;}
+.tab-item.active{color:var(--g);}
+.ti{font-size:21px;line-height:1;}
+.page{display:none;padding:16px 16px 100px;max-width:600px;margin:0 auto;}
+.page.active{display:block;}
+.sec{font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 10px;}
+.card{background:var(--card);border-radius:14px;border:1px solid var(--br);margin-bottom:12px;overflow:hidden;}
+.ch{padding:14px 16px 10px;border-bottom:1px solid var(--br);}
+.ch h2{font-size:16px;font-weight:700;}
+.ch p{font-size:12px;color:var(--mu);margin-top:2px;}
+.cb{padding:4px 0;}
+
+/* exercise rows */
+.ex{cursor:pointer;border-bottom:1px solid var(--br);}
+.ex:last-child{border-bottom:none;}
+.ex-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;}
+.ei{flex:1;}
+.en{font-size:14px;font-weight:600;}
+.ed{font-size:12px;color:var(--mu);margin-top:2px;line-height:1.4;}
+.etags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;}
+.er{text-align:right;min-width:80px;flex-shrink:0;}
+.es{font-size:14px;font-weight:700;color:var(--g);}
+.eres{font-size:11px;color:var(--mu);margin-top:2px;}
+.eche{font-size:16px;color:var(--mu);margin-top:4px;transition:transform .2s;}
+.eche.open{transform:rotate(180deg);}
+
+/* video panel */
+.vid-panel{display:none;border-top:1px solid var(--br);background:#000;}
+.vid-panel.open{display:block;}
+.vid-wrap{position:relative;width:100%;padding-bottom:56.25%;background:#000;min-height:200px;}
+.vid-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.vid-cover{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;cursor:pointer;overflow:hidden;}
+.vid-thumb{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.85;display:block;}
+.vid-overlay{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.play-btn{width:64px;height:64px;background:rgba(255,0,0,.92);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.5);}
+.play-btn svg{width:28px;height:28px;fill:#fff;margin-left:5px;}
+.ext-badge{background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;}
+.vid-steps{padding:12px 16px 14px;background:var(--card);}
+.vid-steps p{font-size:13px;color:var(--mu);line-height:1.6;}
+.vid-steps p strong{color:var(--tx);font-weight:700;}
+
+/* badges */
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;}
+.bt{background:var(--pl);color:var(--p);}
+.bb{background:var(--rl);color:var(--r);}
+.bh{background:var(--bl);color:var(--b);}
+.bc{background:var(--gl);color:var(--gd);}
+.be{background:var(--al);color:var(--a);}
+
+/* home */
+.day-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.dp{border-radius:8px;padding:10px 6px;text-align:center;border:1.5px solid transparent;}
+.dp.on{background:var(--gl);border-color:var(--g);}
+.dp.off{background:#f4f4f4;}
+.dp .dn{font-size:13px;font-weight:700;}
+.dp .dt{font-size:10px;color:var(--mu);margin-top:2px;}
+.dp.on .dt{color:var(--gd);font-weight:600;}
+.t-tabs{display:flex;gap:8px;margin-bottom:16px;}
+.t-tab{flex:1;padding:10px 0;border-radius:8px;border:1.5px solid var(--br);background:var(--card);font-size:13px;font-weight:700;cursor:pointer;color:var(--mu);text-align:center;}
+.t-tab.active{background:var(--g);color:#fff;border-color:var(--g);}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.pc{background:var(--card);border-radius:8px;padding:12px;border:1px solid var(--br);}
+.pw{font-size:11px;font-weight:700;color:var(--mu);margin-bottom:3px;}
+.pt{font-size:14px;font-weight:700;margin-bottom:4px;}
+.pd{font-size:12px;color:var(--mu);line-height:1.5;}
+.gold{background:var(--al);border-radius:14px;padding:16px;border:1px solid #EF9F27;}
+.gt{font-size:13px;font-weight:700;color:#412402;margin-bottom:6px;}
+.gx{font-size:13px;color:#633806;line-height:1.6;}
+.wl{list-style:none;display:flex;flex-direction:column;gap:7px;padding:12px 16px 14px;}
+.wl li{background:var(--gl);border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--gd);display:flex;justify-content:space-between;}
+.wl li span{color:var(--g);font-weight:500;}
+.ib{background:var(--g);color:#fff;border-radius:14px;padding:15px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px;}
+.ib-i{font-size:26px;flex-shrink:0;margin-top:1px;}
+.ib-t h3{font-size:14px;font-weight:700;}
+.ib-t p{font-size:12px;opacity:.85;margin-top:3px;line-height:1.5;}
+.eqg{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.eqc{background:var(--card);border-radius:8px;padding:11px 13px;border:1px solid var(--br);}
+.eqn{font-size:13px;font-weight:700;}
+.equ{font-size:11px;color:var(--mu);margin-top:2px;}
+
+/* timer */
+.tbig{text-align:center;padding:24px 0 8px;}
+.tdisp{font-size:80px;font-weight:700;color:var(--g);letter-spacing:-3px;font-variant-numeric:tabular-nums;}
+.tlbl{font-size:13px;color:var(--mu);margin-top:4px;min-height:18px;}
+.presets{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0;}
+.pset{padding:8px 14px;border-radius:20px;border:1.5px solid var(--br);background:var(--card);font-size:13px;font-weight:600;cursor:pointer;color:var(--mu);}
+.pset.sel{background:var(--gl);border-color:var(--g);color:var(--gd);}
+.tbtns{display:flex;gap:12px;justify-content:center;margin-top:6px;}
+.btn{padding:14px 32px;border-radius:50px;font-size:15px;font-weight:700;border:none;cursor:pointer;}
+.bng{background:var(--g);color:#fff;}
+.bno{background:transparent;color:var(--g);border:2px solid var(--g);}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <h1>&#127947; Treino Donadao</h1>
+  <p>Emagrecimento · Iniciante · 3x semana</p>
+</div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="ib">
+    <div class="ib-i">&#128241;</div>
+    <div class="ib-t">
+      <h3>Instalar no iPhone</h3>
+      <p>Abre no <strong>Safari</strong> → toca em Partilhar &#8594; "Adicionar ao Ecrã de Início"</p>
+    </div>
+  </div>
+  <div class="sec">Esta semana</div>
+  <div class="day-grid">
+    <div class="dp on"><div class="dn">Seg</div><div class="dt">Treino A</div></div>
+    <div class="dp off"><div class="dn">Ter</div><div class="dt">Descanso</div></div>
+    <div class="dp on"><div class="dn">Qua</div><div class="dt">Treino B</div></div>
+    <div class="dp off"><div class="dn">Qui</div><div class="dt">Descanso</div></div>
+    <div class="dp on"><div class="dn">Sex</div><div class="dt">Treino C</div></div>
+    <div class="dp off"><div class="dn">Fds</div><div class="dt">Descanso</div></div>
+  </div>
+  <div class="sec">Aquecimento (todos os dias)</div>
+  <div class="card">
+    <ul class="wl">
+      <li>Polichinelos <span>2 min</span></li>
+      <li>Rotacao ombros + pescoco <span>30 seg cada</span></li>
+      <li>Agachamento livre <span>10 reps</span></li>
+      <li>Sombra (socos leves) <span>1 min</span></li>
+    </ul>
+  </div>
+  <div class="sec">Equipamentos</div>
+  <div class="eqg">
+    <div class="eqc"><div class="eqn">&#127947; Boxe musical</div><div class="equ">Cardio, coordenacao</div></div>
+    <div class="eqc"><div class="eqn">&#128293; TRX</div><div class="equ">Remada, agachamento, core</div></div>
+    <div class="eqc"><div class="eqn">&#129354; Halteres</div><div class="equ">Ate 10 kg</div></div>
+    <div class="eqc"><div class="eqn">&#128308; Elasticos</div><div class="equ">2 resistencias</div></div>
+    <div class="eqc"><div class="eqn">&#128692; Bicicleta</div><div class="equ">Cardio dias livres</div></div>
+    <div class="eqc"><div class="eqn">&#128170; Corpo</div><div class="equ">Flexoes, prancha, burpee</div></div>
+  </div>
+  <div class="sec">Dica de ouro</div>
+  <div class="gold">
+    <div class="gt">&#9889; TRX Remada — protege a lombar</div>
+    <div class="gx">Antes de puxar, ativa o core como se fosses levar um soco. O movimento deve vir das costas, nao dos bracos. Comeca a 45° e vai progredindo. Nunca deixes os ombros subir ate as orelhas.</div>
+  </div>
+</div>
+
+<!-- TREINOS -->
+<div class="page" id="page-treinos">
+  <div class="t-tabs">
+    <button class="t-tab active" onclick="sT('A',this)">Treino A</button>
+    <button class="t-tab" onclick="sT('B',this)">Treino B</button>
+    <button class="t-tab" onclick="sT('C',this)">Treino C</button>
+  </div>
+
+  <!-- TREINO A -->
+  <div id="t-A">
+    <div class="card">
+      <div class="ch"><h2>Treino A — Forca</h2><p>Segunda · Costas, pernas e core</p></div>
+      <div class="cb">
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Flexao de bracos</div><div class="ed">Joelhos no chao se necessario. Cadencia 2-1-2</div><div class="etags"><span class="badge bc">Corpo</span></div></div>
+            <div class="er"><div class="es">3 x 8-10</div><div class="eres">60 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="IODxDxX7oi4">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPkZMRVhBTyBERSBCUkFDT1M8L3RleHQ+CiAgPCEtLSBjaGFvIC0tPgogIDxsaW5lIHgxPSIyMCIgeTE9IjE1MCIgeDI9IjMwMCIgeTI9IjE1MCIgc3Ryb2tlPSIjNDQ0IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8IS0tIGNvcnBvIG5hIGZsZXhhbyAtIHBvc2ljYW8gYmFpeGEgLS0+CiAgPCEtLSBwZXJuYXMgLS0+CiAgPGxpbmUgeDE9IjI0MCIgeTE9IjE0OCIgeDI9IjE5MCIgeTI9IjEzMCIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxsaW5lIHgxPSIxOTAiIHkxPSIxMzAiIHgyPSIxNzAiIHkyPSIxMjAiIHN0cm9rZT0iI2FhYSIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8IS0tIHRyb25jbyAtLT4KICA8bGluZSB4MT0iMTcwIiB5MT0iMTIwIiB4Mj0iMTEwIiB5Mj0iMTA1IiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gYnJhY29zIGRvYnJhZG9zIC0tPgogIDxsaW5lIHgxPSIxMTAiIHkxPSIxMDUiIHgyPSI5MCIgeTI9IjEzMCIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxsaW5lIHgxPSI5MCIgeTE9IjEzMCIgeDI9Ijc1IiB5Mj0iMTQ4IiBzdHJva2U9IiNhYWEiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPCEtLSBjYWJlY2EgLS0+CiAgPGNpcmNsZSBjeD0iMTAyIiBjeT0iOTUiIHI9IjEyIiBmaWxsPSIjZGRkIi8+CiAgPCEtLSBtYW9zIG5vIGNoYW8gLS0+CiAgPGVsbGlwc2UgY3g9Ijc1IiBjeT0iMTUwIiByeD0iNiIgcnk9IjQiIGZpbGw9IiNiYmIiLz4KICA8IS0tIHNldGEgY2ltYS9iYWl4byAtLT4KICA8dGV4dCB4PSI1MCIgeT0iODUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtZmFtaWx5PSJBcmlhbCI+4oaVPC90ZXh0PgogIDwhLS0gbGFiZWwgLS0+CiAgPHRleHQgeD0iMTYwIiB5PSIxNzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM4ODgiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCI+VG9jYSBwYXJhIHZlciBvIHZpZGVvPC90ZXh0Pgo8L3N2Zz4=" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Maos a largura dos ombros, corpo em linha reta. Desce o peito ate quase tocar no chao, cotovelos a 45°. Se necessario, apoia os joelhos. Sobe de forma controlada.</p></div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Remada TRX</div><div class="ed">Corpo a 45°, puxa o peito ate as alcas. Cadencia 2-1-2</div><div class="etags"><span class="badge bt">TRX</span></div></div>
+            <div class="er"><div class="es">3 x 10</div><div class="eres">60 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="sCObdR_K_Mo">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPlJFTUFEQSBUUlg8L3RleHQ+CiAgPCEtLSBhbmNvcmEgbm8gdG9wbyAtLT4KICA8cmVjdCB4PSIxNDUiIHk9IjI1IiB3aWR0aD0iMzAiIGhlaWdodD0iOCIgcng9IjMiIGZpbGw9IiM1NTUiLz4KICA8bGluZSB4MT0iMTYwIiB5MT0iMzMiIHgyPSIxNjAiIHkyPSI1NSIgc3Ryb2tlPSIjNzc3IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8IS0tIGFsY2FzIFRSWCAtLT4KICA8bGluZSB4MT0iMTYwIiB5MT0iNTUiIHgyPSIxMzAiIHkyPSI5MCIgc3Ryb2tlPSIjZmY5ODAwIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8bGluZSB4MT0iMTYwIiB5MT0iNTUiIHgyPSIxOTAiIHkyPSI5MCIgc3Ryb2tlPSIjZmY5ODAwIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8IS0tIGNvcnBvIGluY2xpbmFkbyAtLT4KICA8bGluZSB4MT0iMjYwIiB5MT0iMTQ4IiB4Mj0iMjAwIiB5Mj0iMTQ4IiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxsaW5lIHgxPSIyMDAiIHkxPSIxNDgiIHgyPSIxMzAiIHkyPSI5MCIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8IS0tIGNhYmVjYSAtLT4KICA8Y2lyY2xlIGN4PSIxMjIiIGN5PSI4MiIgcj0iMTIiIGZpbGw9IiNkZGQiLz4KICA8IS0tIG1hb3MgbmFzIGFsY2FzIC0tPgogIDxjaXJjbGUgY3g9IjEzMCIgY3k9IjkwIiByPSI2IiBmaWxsPSIjYmJiIi8+CiAgPGNpcmNsZSBjeD0iMTkwIiBjeT0iOTAiIHI9IjYiIGZpbGw9IiNiYmIiLz4KICA8IS0tIHBlcyBubyBjaGFvIC0tPgogIDxlbGxpcHNlIGN4PSIyNTUiIGN5PSIxNTAiIHJ4PSIxMCIgcnk9IjQiIGZpbGw9IiNiYmIiLz4KICA8IS0tIHNldGEgcHV4YXIgLS0+CiAgPHRleHQgeD0iNjAiIHk9IjEwMCIgZmlsbD0iIzAwQzg1MyIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj7ihpA8L3RleHQ+CiAgPHRleHQgeD0iMTYwIiB5PSIxNzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM4ODgiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCI+VG9jYSBwYXJhIHZlciBvIHZpZGVvPC90ZXh0Pgo8L3N2Zz4=" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Inclina o corpo para tras segurando as alcas. Corpo em linha reta do calcanhar ao ombro. Puxa os cotovelos ate as maos ficarem junto ao peito. Regressa lentamente.</p></div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Agachamento com halter</div><div class="ed">Halter ao peito (5-7 kg). Desce ate 90°</div><div class="etags"><span class="badge bh">Halter</span></div></div>
+            <div class="er"><div class="es">3 x 12</div><div class="eres">60 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="U3HlEF_E9fo">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPkFHQUNIQU1FTlRPIENPTSBIQUxURVI8L3RleHQ+CiAgPCEtLSBjaGFvIC0tPgogIDxsaW5lIHgxPSI2MCIgeTE9IjE1NSIgeDI9IjI2MCIgeTI9IjE1NSIgc3Ryb2tlPSIjNDQ0IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8IS0tIHBlcm5hIGVzcXVlcmRhIGRvYnJhZGEgLS0+CiAgPGxpbmUgeDE9IjE0NSIgeTE9IjE1NSIgeDI9IjE0OCIgeTI9IjEyMCIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxsaW5lIHgxPSIxNDgiIHkxPSIxMjAiIHgyPSIxNTUiIHkyPSI5NSIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gcGVybmEgZGlyZWl0YSAtLT4KICA8bGluZSB4MT0iMTc1IiB5MT0iMTU1IiB4Mj0iMTcyIiB5Mj0iMTIwIiBzdHJva2U9IiNhYWEiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGxpbmUgeDE9IjE3MiIgeTE9IjEyMCIgeDI9IjE2NSIgeTI9Ijk1IiBzdHJva2U9IiNhYWEiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPCEtLSB0cm9uY28gLS0+CiAgPGxpbmUgeDE9IjE2MCIgeTE9Ijk1IiB4Mj0iMTYwIiB5Mj0iNjAiIHN0cm9rZT0iI2NjYyIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPCEtLSBjYWJlY2EgLS0+CiAgPGNpcmNsZSBjeD0iMTYwIiBjeT0iNDgiIHI9IjEyIiBmaWxsPSIjZGRkIi8+CiAgPCEtLSBoYWx0ZXIgLS0+CiAgPHJlY3QgeD0iMTM4IiB5PSI2OCIgd2lkdGg9IjQ0IiBoZWlnaHQ9IjEwIiByeD0iNSIgZmlsbD0iI2ZmOTgwMCIvPgogIDxyZWN0IHg9IjEzMiIgeT0iNjUiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iIzc3NyIvPgogIDxyZWN0IHg9IjE4MCIgeT0iNjUiIHdpZHRoPSI4IiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iIzc3NyIvPgogIDwhLS0gc2V0YSBiYWl4byAtLT4KICA8dGV4dCB4PSI5NSIgeT0iMTIwIiBmaWxsPSIjMDBDODUzIiBmb250LXNpemU9IjE4IiBmb250LWZhbWlseT0iQXJpYWwiPuKGkzwvdGV4dD4KICA8dGV4dCB4PSIxNjAiIHk9IjE3NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzg4OCIgZm9udC1zaXplPSIxMCIgZm9udC1mYW1pbHk9IkFyaWFsIj5Ub2NhIHBhcmEgdmVyIG8gdmlkZW88L3RleHQ+Cjwvc3ZnPg==" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Pes a largura dos ombros, halter junto ao peito. Desce controlado ate os joelhos chegarem a 90°, costas retas. Empurra os calcanhares no chao ao subir.</p></div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Curl de biceps</div><div class="ed">Alternado, cotovelo fixo ao corpo. 6-8 kg</div><div class="etags"><span class="badge bh">Halter</span></div></div>
+            <div class="er"><div class="es">3 x 10</div><div class="eres">45 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="ykJmrZ5v0Oo">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPkNVUkwgREUgQklDRVBTPC90ZXh0PgogIDwhLS0gY2hhbyAtLT4KICA8bGluZSB4MT0iMTAwIiB5MT0iMTU4IiB4Mj0iMjIwIiB5Mj0iMTU4IiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDwhLS0gY29ycG8gZW0gcGUgLS0+CiAgPGxpbmUgeDE9IjE2MCIgeTE9IjE1OCIgeDI9IjE2MCIgeTI9IjExNSIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxsaW5lIHgxPSIxNjAiIHkxPSIxMTUiIHgyPSIxNjAiIHkyPSI2NSIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8IS0tIGNhYmVjYSAtLT4KICA8Y2lyY2xlIGN4PSIxNjAiIGN5PSI1MiIgcj0iMTIiIGZpbGw9IiNkZGQiLz4KICA8IS0tIGJyYWNvIGVzcXVlcmRvIGRvYnJhZG8gY29tIGhhbHRlciAtLT4KICA8bGluZSB4MT0iMTU1IiB5MT0iOTUiIHgyPSIxMzUiIHkyPSIxMDAiIHN0cm9rZT0iI2FhYSIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8bGluZSB4MT0iMTM1IiB5MT0iMTAwIiB4Mj0iMTI1IiB5Mj0iNzUiIHN0cm9rZT0iI2FhYSIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8cmVjdCB4PSIxMTYiIHk9IjY1IiB3aWR0aD0iMTgiIGhlaWdodD0iOCIgcng9IjQiIGZpbGw9IiNmZjk4MDAiLz4KICA8IS0tIGJyYWNvIGRpcmVpdG8gLS0+CiAgPGxpbmUgeDE9IjE2NSIgeTE9Ijk1IiB4Mj0iMTg1IiB5Mj0iMTEwIiBzdHJva2U9IiNhYWEiIHN0cm9rZS13aWR0aD0iNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPHJlY3QgeD0iMTgzIiB5PSIxMDgiIHdpZHRoPSIxOCIgaGVpZ2h0PSI4IiByeD0iNCIgZmlsbD0iIzc3NyIvPgogIDwhLS0gc2V0YSAtLT4KICA8dGV4dCB4PSIxMDAiIHk9Ijc1IiBmaWxsPSIjMDBDODUzIiBmb250LXNpemU9IjE4IiBmb250LWZhbWlseT0iQXJpYWwiPuKGkTwvdGV4dD4KICA8dGV4dCB4PSIxNjAiIHk9IjE3NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzg4OCIgZm9udC1zaXplPSIxMCIgZm9udC1mYW1pbHk9IkFyaWFsIj5Ub2NhIHBhcmEgdmVyIG8gdmlkZW88L3RleHQ+Cjwvc3ZnPg==" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Em pe, cotovelos junto ao corpo. Curva o antebraco trazendo o halter ao ombro. Roda ligeiramente o pulso ao subir. Baixa lentamente. Alterna os bracos.</p></div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Prancha + elevacao de braco</div><div class="ed">Eleva um braco de cada vez sem rodar o quadril</div><div class="etags"><span class="badge bc">Corpo</span></div></div>
+            <div class="er"><div class="es">3 x 8 cada</div><div class="eres">45 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="ASdvN_XEl_c">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPlBSQU5DSEEgKyBFTEVWQUNBTyBERSBCUkFDTzwvdGV4dD4KICA8IS0tIGNoYW8gLS0+CiAgPGxpbmUgeDE9IjIwIiB5MT0iMTM4IiB4Mj0iMzAwIiB5Mj0iMTM4IiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDwhLS0gY29ycG8gZW0gcHJhbmNoYSAtLT4KICA8bGluZSB4MT0iMjYwIiB5MT0iMTM2IiB4Mj0iMjAwIiB5Mj0iMTI1IiBzdHJva2U9IiNhYWEiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGxpbmUgeDE9IjIwMCIgeTE9IjEyNSIgeDI9IjEwMCIgeTI9IjExNSIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8IS0tIGNhYmVjYSAtLT4KICA8Y2lyY2xlIGN4PSI4OCIgY3k9IjEwOCIgcj0iMTIiIGZpbGw9IiNkZGQiLz4KICA8IS0tIGJyYWNvIGFwb2lvIC0tPgogIDxsaW5lIHgxPSIxMDAiIHkxPSIxMTgiIHgyPSI3OCIgeTI9IjEzNiIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gYnJhY28gZWxldmFkbyAtLT4KICA8bGluZSB4MT0iMTIwIiB5MT0iMTEyIiB4Mj0iMTU1IiB5Mj0iODgiIHN0cm9rZT0iIzAwQzg1MyIgc3Ryb2tlLXdpZHRoPSI3IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8Y2lyY2xlIGN4PSIxNjAiIGN5PSI4NSIgcj0iNSIgZmlsbD0iIzAwQzg1MyIvPgogIDwhLS0gc2V0YSAtLT4KICA8dGV4dCB4PSIxNjUiIHk9Ijc4IiBmaWxsPSIjMDBDODUzIiBmb250LXNpemU9IjE2IiBmb250LWZhbWlseT0iQXJpYWwiPuKGlzwvdGV4dD4KICA8dGV4dCB4PSIxNjAiIHk9IjE2NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzg4OCIgZm9udC1zaXplPSIxMCIgZm9udC1mYW1pbHk9IkFyaWFsIj5Ub2NhIHBhcmEgdmVyIG8gdmlkZW88L3RleHQ+Cjwvc3ZnPg==" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Em posicao de prancha, core contraido. Eleva um braco ate a altura do ombro sem rodar a anca. Mantem 1 segundo, regressa. Alterna os lados.</p></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TREINO B -->
+  <div id="t-B" style="display:none">
+    <div class="card">
+      <div class="ch"><h2>Treino B — Cardio</h2><p>Quarta · Queima calorica e condicionamento</p></div>
+      <div class="cb">
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Boxe musical — modo musical</div><div class="ed">Alterna jab e direto. Nivel 3-5</div><div class="etags"><span class="badge bb">Boxe</span></div></div>
+            <div class="er"><div class="es">3 x 2 min</div><div class="eres">45 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="3KHxUBFBqmE">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPkJPWEUg4oCUIEpBQiBFIERJUkVUTzwvdGV4dD4KICA8IS0tIGx1dmFzIC0tPgogIDxlbGxpcHNlIGN4PSI5NSIgY3k9Ijk1IiByeD0iMjIiIHJ5PSIxNiIgZmlsbD0iI2NjMDAwMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwLDk1LDk1KSIvPgogIDxlbGxpcHNlIGN4PSI5NSIgY3k9Ijk1IiByeD0iMTYiIHJ5PSIxMiIgZmlsbD0iI2ZmMzMzMyIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwLDk1LDk1KSIvPgogIDwhLS0gYWx2byAtLT4KICA8Y2lyY2xlIGN4PSIyMTAiIGN5PSI5MCIgcj0iMzUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzU1NSIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPGNpcmNsZSBjeD0iMjEwIiBjeT0iOTAiIHI9IjIyIiBmaWxsPSJub25lIiBzdHJva2U9IiM1NTUiIHN0cm9rZS13aWR0aD0iMyIvPgogIDxjaXJjbGUgY3g9IjIxMCIgY3k9IjkwIiByPSIxMCIgZmlsbD0iI2ZmOTgwMCIgb3BhY2l0eT0iMC42Ii8+CiAgPCEtLSBicmFjbyAtLT4KICA8bGluZSB4MT0iMTE1IiB5MT0iODgiIHgyPSIxNzUiIHkyPSI4OCIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gY29ycG8gLS0+CiAgPGxpbmUgeDE9IjE1NSIgeTE9IjE1NSIgeDI9IjE1NSIgeTI9IjEwMCIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8IS0tIGNhYmVjYSAtLT4KICA8Y2lyY2xlIGN4PSIxNTUiIGN5PSI4NSIgcj0iMTQiIGZpbGw9IiNkZGQiLz4KICA8IS0tIHNldGEgLS0+CiAgPHRleHQgeD0iMTI1IiB5PSI3MCIgZmlsbD0iIzAwQzg1MyIgZm9udC1zaXplPSIxNiIgZm9udC1mYW1pbHk9IkFyaWFsIj7ihpI8L3RleHQ+CiAgPHRleHQgeD0iMTYwIiB5PSIxNzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM4ODgiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCI+VG9jYSBwYXJhIHZlciBvIHZpZGVvPC90ZXh0Pgo8L3N2Zz4=" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Postura de guarda: pe dominante atras, joelhos ligeiramente fletidos. Jab = soco reto com a mao da frente. Direto = soco com a mao de tras + rotacao de anca. Mantem os pulsos retos no impacto.</p></div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Avanco com elastico</div><div class="ed">Elastico nos pes, passada longa alternada</div><div class="etags"><span class="badge be">Elastico</span></div></div>
+            <div class="er"><div class="es">3 x 12 cada</div><div class="eres">60 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="QOVaHwm-Q6U">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPkFWQU5DTyAvIExVTkdFPC90ZXh0PgogIDwhLS0gY2hhbyAtLT4KICA8bGluZSB4MT0iNDAiIHkxPSIxNTUiIHgyPSIyODAiIHkyPSIxNTUiIHN0cm9rZT0iIzQ0NCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPCEtLSBwZSBkYSBmcmVudGUgLS0+CiAgPGVsbGlwc2UgY3g9IjE5NSIgY3k9IjE1NiIgcng9IjE4IiByeT0iNSIgZmlsbD0iI2JiYiIvPgogIDwhLS0gcGUgZGUgdHJhcyAtLT4KICA8ZWxsaXBzZSBjeD0iMTAwIiBjeT0iMTU2IiByeD0iMTQiIHJ5PSI0IiBmaWxsPSIjODg4Ii8+CiAgPCEtLSBwZXJuYSBmcmVudGUgLS0+CiAgPGxpbmUgeDE9IjE5NSIgeTE9IjE1NSIgeDI9IjE4NSIgeTI9IjEyMCIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxsaW5lIHgxPSIxODUiIHkxPSIxMjAiIHgyPSIxNjAiIHkyPSI5MCIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gcGVybmEgdHJhcyAoam9lbGhvIHF1YXNlIG5vIGNoYW8pIC0tPgogIDxsaW5lIHgxPSIxMDAiIHkxPSIxNTUiIHgyPSIxMTUiIHkyPSIxMjUiIHN0cm9rZT0iI2FhYSIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8bGluZSB4MT0iMTE1IiB5MT0iMTI1IiB4Mj0iMTYwIiB5Mj0iOTAiIHN0cm9rZT0iI2FhYSIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8IS0tIHRyb25jbyBlcmV0byAtLT4KICA8bGluZSB4MT0iMTYwIiB5MT0iOTAiIHgyPSIxNjAiIHkyPSI1NSIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8IS0tIGNhYmVjYSAtLT4KICA8Y2lyY2xlIGN4PSIxNjAiIGN5PSI0MyIgcj0iMTIiIGZpbGw9IiNkZGQiLz4KICA8IS0tIHNldGEgYmFpeG8gLS0+CiAgPHRleHQgeD0iMjE1IiB5PSIxMzAiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTYiIGZvbnQtZmFtaWx5PSJBcmlhbCI+4oaTPC90ZXh0PgogIDx0ZXh0IHg9IjE2MCIgeT0iMTc0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjODg4IiBmb250LXNpemU9IjEwIiBmb250LWZhbWlseT0iQXJpYWwiPlRvY2EgcGFyYSB2ZXIgbyB2aWRlbzwvdGV4dD4KPC9zdmc+" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Passada longa a frente. O joelho da frente nao ultrapassa a ponta do pe. O joelho traseiro desce controlado. Volta a posicao inicial e alterna.</p></div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Agachamento TRX</div><div class="ed">Segura as alcas para suporte, desce lento</div><div class="etags"><span class="badge bt">TRX</span></div></div>
+            <div class="er"><div class="es">3 x 15</div><div class="eres">45 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="lkJPCQkpXgs">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPkFHQUNIQU1FTlRPIFRSWDwvdGV4dD4KICA8IS0tIGFuY29yYSAtLT4KICA8cmVjdCB4PSIxNDUiIHk9IjI1IiB3aWR0aD0iMzAiIGhlaWdodD0iOCIgcng9IjMiIGZpbGw9IiM1NTUiLz4KICA8bGluZSB4MT0iMTYwIiB5MT0iMzMiIHgyPSIxNjAiIHkyPSI1NSIgc3Ryb2tlPSIjNzc3IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8bGluZSB4MT0iMTYwIiB5MT0iNTUiIHgyPSIxMzUiIHkyPSI4MCIgc3Ryb2tlPSIjZmY5ODAwIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8bGluZSB4MT0iMTYwIiB5MT0iNTUiIHgyPSIxODUiIHkyPSI4MCIgc3Ryb2tlPSIjZmY5ODAwIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8IS0tIGNoYW8gLS0+CiAgPGxpbmUgeDE9IjYwIiB5MT0iMTU1IiB4Mj0iMjYwIiB5Mj0iMTU1IiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDwhLS0gcG9zaWNhbyBhZ2FjaGFkbyAtLT4KICA8bGluZSB4MT0iMTQwIiB5MT0iMTU1IiB4Mj0iMTQ1IiB5Mj0iMTIwIiBzdHJva2U9IiNhYWEiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGxpbmUgeDE9IjE0NSIgeTE9IjEyMCIgeDI9IjE1NSIgeTI9IjEwMCIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxsaW5lIHgxPSIxODAiIHkxPSIxNTUiIHgyPSIxNzUiIHkyPSIxMjAiIHN0cm9rZT0iI2FhYSIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8bGluZSB4MT0iMTc1IiB5MT0iMTIwIiB4Mj0iMTY1IiB5Mj0iMTAwIiBzdHJva2U9IiNhYWEiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGxpbmUgeDE9IjE2MCIgeTE9IjEwMCIgeDI9IjE2MCIgeTI9IjY4IiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxjaXJjbGUgY3g9IjE2MCIgY3k9IjU1IiByPSIxMiIgZmlsbD0iI2RkZCIvPgogIDwhLS0gbWFvcyBuYXMgYWxjYXMgLS0+CiAgPGNpcmNsZSBjeD0iMTM1IiBjeT0iODAiIHI9IjYiIGZpbGw9IiNiYmIiLz4KICA8Y2lyY2xlIGN4PSIxODUiIGN5PSI4MCIgcj0iNiIgZmlsbD0iI2JiYiIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMTc0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjODg4IiBmb250LXNpemU9IjEwIiBmb250LWZhbWlseT0iQXJpYWwiPlRvY2EgcGFyYSB2ZXIgbyB2aWRlbzwvdGV4dD4KPC9zdmc+" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Segura as alcas do TRX com bracos estendidos. Desce em agachamento a 90° usando o TRX como suporte de equilibrio. Otimo para iniciante aprender a mecanica correta.</p></div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Elevacao lateral c/ elastico</div><div class="ed">Eleva ate a altura do ombro</div><div class="etags"><span class="badge be">Elastico</span></div></div>
+            <div class="er"><div class="es">3 x 12</div><div class="eres">45 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="3VcKaXpzqRo">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPkVMRVZBQ0FPIExBVEVSQUwg4oCUIEVMQVNUSUNPPC90ZXh0PgogIDwhLS0gY2hhbyAtLT4KICA8bGluZSB4MT0iODAiIHkxPSIxNTUiIHgyPSIyNDAiIHkyPSIxNTUiIHN0cm9rZT0iIzQ0NCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPCEtLSBjb3JwbyBlbSBwZSAtLT4KICA8bGluZSB4MT0iMTYwIiB5MT0iMTU1IiB4Mj0iMTYwIiB5Mj0iMTEwIiBzdHJva2U9IiNhYWEiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGxpbmUgeDE9IjE2MCIgeTE9IjExMCIgeDI9IjE2MCIgeTI9IjY1IiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gY2FiZWNhIC0tPgogIDxjaXJjbGUgY3g9IjE2MCIgY3k9IjUyIiByPSIxMiIgZmlsbD0iI2RkZCIvPgogIDwhLS0gYnJhY28gZWxldmFkbyBlc3F1ZXJkbyAtLT4KICA8bGluZSB4MT0iMTU1IiB5MT0iODUiIHgyPSI5NSIgeTI9Ijc1IiBzdHJva2U9IiMwMEM4NTMiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGNpcmNsZSBjeD0iOTAiIGN5PSI3NCIgcj0iNyIgZmlsbD0iIzc3NyIvPgogIDwhLS0gYnJhY28gZWxldmFkbyBkaXJlaXRvIC0tPgogIDxsaW5lIHgxPSIxNjUiIHkxPSI4NSIgeDI9IjIyNSIgeTI9Ijc1IiBzdHJva2U9IiMwMEM4NTMiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGNpcmNsZSBjeD0iMjMwIiBjeT0iNzQiIHI9IjciIGZpbGw9IiM3NzciLz4KICA8IS0tIGVsYXN0aWNvIG5vIGNoYW8gLS0+CiAgPHBhdGggZD0iTSAxNDAgMTU1IFEgMTYwIDE0NSAxODAgMTU1IiBzdHJva2U9IiNmZjk4MDAiIHN0cm9rZS13aWR0aD0iMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLWRhc2hhcnJheT0iNCwzIi8+CiAgPCEtLSBzZXRhcyBjaW1hIC0tPgogIDx0ZXh0IHg9Ijc1IiB5PSI2NSIgZmlsbD0iIzAwQzg1MyIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj7ihpE8L3RleHQ+CiAgPHRleHQgeD0iMjI1IiB5PSI2NSIgZmlsbD0iIzAwQzg1MyIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj7ihpE8L3RleHQ+CiAgPHRleHQgeD0iMTYwIiB5PSIxNzQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM4ODgiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCI+VG9jYSBwYXJhIHZlciBvIHZpZGVvPC90ZXh0Pgo8L3N2Zz4=" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Elastico preso nos pes. Eleva os bracos lateralmente ate a linha dos ombros. Cotovelos ligeiramente fletidos. Baixa controlado. Nao balances o tronco.</p></div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Corrida estacionaria (high knees)</div><div class="ed">Joelhos acima do quadril, ritmo acelerado</div><div class="etags"><span class="badge bc">Corpo</span></div></div>
+            <div class="er"><div class="es">4 x 30 seg</div><div class="eres">30 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="tx5rgpDAGiQ">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPkhJR0ggS05FRVMg4oCUIENPUlJJREE8L3RleHQ+CiAgPCEtLSBjaGFvIC0tPgogIDxsaW5lIHgxPSI4MCIgeTE9IjE1OCIgeDI9IjI0MCIgeTI9IjE1OCIgc3Ryb2tlPSIjNDQ0IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8IS0tIGZpZ3VyYSBhIGNvcnJlciBqb2VsaG9zIGFsdG9zIC0tPgogIDwhLS0gcGVybmEgZWxldmFkYSAtLT4KICA8bGluZSB4MT0iMTYwIiB5MT0iMTU4IiB4Mj0iMTY4IiB5Mj0iMTI4IiBzdHJva2U9IiNhYWEiIHN0cm9rZS13aWR0aD0iOCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGxpbmUgeDE9IjE2OCIgeTE9IjEyOCIgeDI9IjE3MCIgeTI9IjEwMCIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gam9lbGhvIGFsdG8gaW5kaWNhZG8gLS0+CiAgPGNpcmNsZSBjeD0iMTcwIiBjeT0iMTAwIiByPSI2IiBmaWxsPSIjMDBDODUzIi8+CiAgPCEtLSBwZXJuYSBkZSBhcG9pbyAtLT4KICA8bGluZSB4MT0iMTU1IiB5MT0iMTU4IiB4Mj0iMTUwIiB5Mj0iMTIwIiBzdHJva2U9IiM4ODgiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPCEtLSB0cm9uY28gLS0+CiAgPGxpbmUgeDE9IjE2MCIgeTE9IjEyMCIgeDI9IjE1OCIgeTI9IjcyIiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gY2FiZWNhIC0tPgogIDxjaXJjbGUgY3g9IjE1NyIgY3k9IjYwIiByPSIxMiIgZmlsbD0iI2RkZCIvPgogIDwhLS0gYnJhY28gb3Bvc3RvIC0tPgogIDxsaW5lIHgxPSIxNTUiIHkxPSI5MCIgeDI9IjEzMCIgeTI9IjEwNSIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxsaW5lIHgxPSIxNjMiIHkxPSI4OCIgeDI9IjE4OCIgeTI9Ijc1IiBzdHJva2U9IiNhYWEiIHN0cm9rZS13aWR0aD0iNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPCEtLSBzZXRhIGpvZWxobyAtLT4KICA8dGV4dCB4PSIxODAiIHk9Ijk1IiBmaWxsPSIjMDBDODUzIiBmb250LXNpemU9IjEzIiBmb250LWZhbWlseT0iQXJpYWwiPuKGkCBhbHRvITwvdGV4dD4KICA8IS0tIGxpbmhhcyBkZSBtb3ZpbWVudG8gLS0+CiAgPGxpbmUgeDE9IjEwMCIgeTE9IjE1OCIgeDI9Ijg1IiB5Mj0iMTQ1IiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLWRhc2hhcnJheT0iMywzIi8+CiAgPGxpbmUgeDE9IjIyMCIgeTE9IjE1OCIgeDI9IjIzNSIgeTI9IjE0NSIgc3Ryb2tlPSIjNDQ0IiBzdHJva2Utd2lkdGg9IjEiIHN0cm9rZS1kYXNoYXJyYXk9IjMsMyIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMTc1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjODg4IiBmb250LXNpemU9IjEwIiBmb250LWZhbWlseT0iQXJpYWwiPlRvY2EgcGFyYSB2ZXIgbyB2aWRlbzwvdGV4dD4KPC9zdmc+" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Corre no lugar levantando os joelhos acima da linha do quadril. Bracos em movimento como na corrida real. Tronco ereto. Aterra com a parte anterior do pe.</p></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TREINO C -->
+  <div id="t-C" style="display:none">
+    <div class="card">
+      <div class="ch"><h2>Treino C — Misto</h2><p>Sexta · Corpo todo + potencia</p></div>
+      <div class="cb">
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Boxe musical — modo velocidade</div><div class="ed">Maxima concentracao, acompanha o LED</div><div class="etags"><span class="badge bb">Boxe</span></div></div>
+            <div class="er"><div class="es">2 x 2 min</div><div class="eres">60 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="3KHxUBFBqmE">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPkJPWEUg4oCUIEpBQiBFIERJUkVUTzwvdGV4dD4KICA8IS0tIGx1dmFzIC0tPgogIDxlbGxpcHNlIGN4PSI5NSIgY3k9Ijk1IiByeD0iMjIiIHJ5PSIxNiIgZmlsbD0iI2NjMDAwMCIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwLDk1LDk1KSIvPgogIDxlbGxpcHNlIGN4PSI5NSIgY3k9Ijk1IiByeD0iMTYiIHJ5PSIxMiIgZmlsbD0iI2ZmMzMzMyIgdHJhbnNmb3JtPSJyb3RhdGUoLTIwLDk1LDk1KSIvPgogIDwhLS0gYWx2byAtLT4KICA8Y2lyY2xlIGN4PSIyMTAiIGN5PSI5MCIgcj0iMzUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzU1NSIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPGNpcmNsZSBjeD0iMjEwIiBjeT0iOTAiIHI9IjIyIiBmaWxsPSJub25lIiBzdHJva2U9IiM1NTUiIHN0cm9rZS13aWR0aD0iMyIvPgogIDxjaXJjbGUgY3g9IjIxMCIgY3k9IjkwIiByPSIxMCIgZmlsbD0iI2ZmOTgwMCIgb3BhY2l0eT0iMC42Ii8+CiAgPCEtLSBicmFjbyAtLT4KICA8bGluZSB4MT0iMTE1IiB5MT0iODgiIHgyPSIxNzUiIHkyPSI4OCIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjgiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gY29ycG8gLS0+CiAgPGxpbmUgeDE9IjE1NSIgeTE9IjE1NSIgeDI9IjE1NSIgeTI9IjEwMCIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8IS0tIGNhYmVjYSAtLT4KICA8Y2lyY2xlIGN4PSIxNTUiIGN5PSI4NSIgcj0iMTQiIGZpbGw9IiNkZGQiLz4KICA8IS0tIHNldGEgLS0+CiAgPHRleHQgeD0iMTI1IiB5PSI3MCIgZmlsbD0iIzAwQzg1MyIgZm9udC1zaXplPSIxNiIgZm9udC1mYW1pbHk9IkFyaWFsIj7ihpI8L3RleHQ+CiAgPHRleHQgeD0iMTYwIiB5PSIxNzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM4ODgiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCI+VG9jYSBwYXJhIHZlciBvIHZpZGVvPC90ZXh0Pgo8L3N2Zz4=" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Aumenta a velocidade dos socos tentando acompanhar a sequencia LED. Mantem a postura de guarda entre combinacoes. Objetivo: coordenacao + velocidade + resistencia cardiovascular.</p></div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Desenvolvimento de ombros</div><div class="ed">Halter em cada mao, empurra acima da cabeca. 5-6 kg</div><div class="etags"><span class="badge bh">Halter</span></div></div>
+            <div class="er"><div class="es">3 x 10</div><div class="eres">60 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="qEwKCR5JCog">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPkRFU0VOVk9MVklNRU5UTyBERSBPTUJST1M8L3RleHQ+CiAgPCEtLSBjaGFvIC0tPgogIDxsaW5lIHgxPSI4MCIgeTE9IjE1OCIgeDI9IjI0MCIgeTI9IjE1OCIgc3Ryb2tlPSIjNDQ0IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8IS0tIGNvcnBvIGVtIHBlIC0tPgogIDxsaW5lIHgxPSIxNjAiIHkxPSIxNTgiIHgyPSIxNjAiIHkyPSIxMTAiIHN0cm9rZT0iI2FhYSIgc3Ryb2tlLXdpZHRoPSI4IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8bGluZSB4MT0iMTYwIiB5MT0iMTEwIiB4Mj0iMTYwIiB5Mj0iNjgiIHN0cm9rZT0iI2NjYyIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPCEtLSBjYWJlY2EgLS0+CiAgPGNpcmNsZSBjeD0iMTYwIiBjeT0iNTYiIHI9IjEyIiBmaWxsPSIjZGRkIi8+CiAgPCEtLSBicmFjbyBlc3F1ZXJkbyBlbGV2YWRvIGNvbSBoYWx0ZXIgLS0+CiAgPGxpbmUgeDE9IjE1NSIgeTE9Ijg1IiB4Mj0iMTE4IiB5Mj0iODUiIHN0cm9rZT0iI2FhYSIgc3Ryb2tlLXdpZHRoPSI3IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8bGluZSB4MT0iMTE4IiB5MT0iODUiIHgyPSIxMDUiIHkyPSI0OCIgc3Ryb2tlPSIjMDBDODUzIiBzdHJva2Utd2lkdGg9IjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxyZWN0IHg9Ijk2IiB5PSIzOCIgd2lkdGg9IjE4IiBoZWlnaHQ9IjgiIHJ4PSI0IiBmaWxsPSIjZmY5ODAwIi8+CiAgPCEtLSBicmFjbyBkaXJlaXRvIGVsZXZhZG8gY29tIGhhbHRlciAtLT4KICA8bGluZSB4MT0iMTY1IiB5MT0iODUiIHgyPSIyMDIiIHkyPSI4NSIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxsaW5lIHgxPSIyMDIiIHkxPSI4NSIgeDI9IjIxNSIgeTI9IjQ4IiBzdHJva2U9IiMwMEM4NTMiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPHJlY3QgeD0iMjA2IiB5PSIzOCIgd2lkdGg9IjE4IiBoZWlnaHQ9IjgiIHJ4PSI0IiBmaWxsPSIjZmY5ODAwIi8+CiAgPCEtLSBzZXRhcyBjaW1hIC0tPgogIDx0ZXh0IHg9Ijk1IiB5PSIzMiIgZmlsbD0iIzAwQzg1MyIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj7ihpE8L3RleHQ+CiAgPHRleHQgeD0iMjEwIiB5PSIzMiIgZmlsbD0iIzAwQzg1MyIgZm9udC1zaXplPSIxNCIgZm9udC1mYW1pbHk9IkFyaWFsIj7ihpE8L3RleHQ+CiAgPHRleHQgeD0iMTYwIiB5PSIxNzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM4ODgiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCI+VG9jYSBwYXJhIHZlciBvIHZpZGVvPC90ZXh0Pgo8L3N2Zz4=" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Em pe, halteres ao nivel dos ombros com palmas a frente. Empurra os halteres acima da cabeca. Baixa controlado ate ao nivel dos ombros.</p></div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Remada TRX invertida</div><div class="ed">Pegada supinada (palmas para cima)</div><div class="etags"><span class="badge bt">TRX</span></div></div>
+            <div class="er"><div class="es">3 x 10</div><div class="eres">60 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="sCObdR_K_Mo">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPlJFTUFEQSBUUlg8L3RleHQ+CiAgPCEtLSBhbmNvcmEgbm8gdG9wbyAtLT4KICA8cmVjdCB4PSIxNDUiIHk9IjI1IiB3aWR0aD0iMzAiIGhlaWdodD0iOCIgcng9IjMiIGZpbGw9IiM1NTUiLz4KICA8bGluZSB4MT0iMTYwIiB5MT0iMzMiIHgyPSIxNjAiIHkyPSI1NSIgc3Ryb2tlPSIjNzc3IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8IS0tIGFsY2FzIFRSWCAtLT4KICA8bGluZSB4MT0iMTYwIiB5MT0iNTUiIHgyPSIxMzAiIHkyPSI5MCIgc3Ryb2tlPSIjZmY5ODAwIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8bGluZSB4MT0iMTYwIiB5MT0iNTUiIHgyPSIxOTAiIHkyPSI5MCIgc3Ryb2tlPSIjZmY5ODAwIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8IS0tIGNvcnBvIGluY2xpbmFkbyAtLT4KICA8bGluZSB4MT0iMjYwIiB5MT0iMTQ4IiB4Mj0iMjAwIiB5Mj0iMTQ4IiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxsaW5lIHgxPSIyMDAiIHkxPSIxNDgiIHgyPSIxMzAiIHkyPSI5MCIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8IS0tIGNhYmVjYSAtLT4KICA8Y2lyY2xlIGN4PSIxMjIiIGN5PSI4MiIgcj0iMTIiIGZpbGw9IiNkZGQiLz4KICA8IS0tIG1hb3MgbmFzIGFsY2FzIC0tPgogIDxjaXJjbGUgY3g9IjEzMCIgY3k9IjkwIiByPSI2IiBmaWxsPSIjYmJiIi8+CiAgPGNpcmNsZSBjeD0iMTkwIiBjeT0iOTAiIHI9IjYiIGZpbGw9IiNiYmIiLz4KICA8IS0tIHBlcyBubyBjaGFvIC0tPgogIDxlbGxpcHNlIGN4PSIyNTUiIGN5PSIxNTAiIHJ4PSIxMCIgcnk9IjQiIGZpbGw9IiNiYmIiLz4KICA8IS0tIHNldGEgcHV4YXIgLS0+CiAgPHRleHQgeD0iNjAiIHk9IjEwMCIgZmlsbD0iIzAwQzg1MyIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsIj7ihpA8L3RleHQ+CiAgPHRleHQgeD0iMTYwIiB5PSIxNzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM4ODgiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCI+VG9jYSBwYXJhIHZlciBvIHZpZGVvPC90ZXh0Pgo8L3N2Zz4=" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Igual a remada TRX mas com as palmas viradas para cima. Ativa mais o biceps e parte inferior do dorsal. Mantem os cotovelos junto ao corpo na puxada.</p></div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Burpee modificado</div><div class="ed">Sem salto. Agacha, apoia, deita, levanta</div><div class="etags"><span class="badge bc">Corpo</span></div></div>
+            <div class="er"><div class="es">3 x 8</div><div class="eres">60 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="dZgVxmf6jkA">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPkJVUlBFRSBNT0RJRklDQURPPC90ZXh0PgogIDwhLS0gY2hhbyAtLT4KICA8bGluZSB4MT0iMjAiIHkxPSIxNDgiIHgyPSIzMDAiIHkyPSIxNDgiIHN0cm9rZT0iIzQ0NCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPCEtLSBwb3NpY2FvIGRlIHByYW5jaGEgbm8gY2hhbyAtLT4KICA8IS0tIGNvcnBvIGRlaXRhZG8gLS0+CiAgPGxpbmUgeDE9IjI2MCIgeTE9IjE0NiIgeDI9IjkwIiB5Mj0iMTMwIiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMTAiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDwhLS0gY2FiZWNhIC0tPgogIDxjaXJjbGUgY3g9Ijc4IiBjeT0iMTI0IiByPSIxMSIgZmlsbD0iI2RkZCIvPgogIDwhLS0gbWFvcyBubyBjaGFvIC0tPgogIDxsaW5lIHgxPSIxMjAiIHkxPSIxMzAiIHgyPSIxMTIiIHkyPSIxNDYiIHN0cm9rZT0iI2FhYSIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8bGluZSB4MT0iMTQ1IiB5MT0iMTI4IiB4Mj0iMTQwIiB5Mj0iMTQ2IiBzdHJva2U9IiNhYWEiIHN0cm9rZS13aWR0aD0iNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPCEtLSBzZXRhcyBudW1lcmFkYXMgZGFzIGZhc2VzIC0tPgogIDx0ZXh0IHg9IjU1IiB5PSIxMDAiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPjEuQWdhY2hhPC90ZXh0PgogIDx0ZXh0IHg9IjEzMCIgeT0iMTAwIiBmaWxsPSIjZmY5ODAwIiBmb250LXNpemU9IjEwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSJib2xkIj4yLlByYW5jaGE8L3RleHQ+CiAgPHRleHQgeD0iMjA1IiB5PSIxMDAiIGZpbGw9IiNhYWEiIGZvbnQtc2l6ZT0iMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPjMuTGV2YW50YTwvdGV4dD4KICA8dGV4dCB4PSI1NSIgeT0iMTEyIiBmaWxsPSIjNTU1IiBmb250LXNpemU9IjgiIGZvbnQtZmFtaWx5PSJBcmlhbCI+4oaSPC90ZXh0PgogIDx0ZXh0IHg9IjEyOCIgeT0iMTEyIiBmaWxsPSIjNTU1IiBmb250LXNpemU9IjgiIGZvbnQtZmFtaWx5PSJBcmlhbCI+4oaSPC90ZXh0PgogIDx0ZXh0IHg9IjE2MCIgeT0iMTY4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjODg4IiBmb250LXNpemU9IjEwIiBmb250LWZhbWlseT0iQXJpYWwiPlRvY2EgcGFyYSB2ZXIgbyB2aWRlbzwvdGV4dD4KPC9zdmc+" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Agacha e apoia as maos no chao. Recua os pes para prancha. Deita o peito no chao. Empurra de volta a prancha, avanca os pes e levanta. Sem salto nesta versao.</p></div>
+          </div>
+        </div>
+
+        <div class="ex">
+          <div class="ex-top" onclick="toggleVid(this.closest('.ex'))">
+            <div class="ei"><div class="en">Mountain climber TRX</div><div class="ed">Pes nas alcas, joelhos ao peito alternados</div><div class="etags"><span class="badge bt">TRX</span></div></div>
+            <div class="er"><div class="es">3 x 20 seg</div><div class="eres">45 seg</div><div class="eche">&#9660;</div></div>
+          </div>
+          <div class="vid-panel" data-vid="nmwgirgXLYM">
+            <div class="vid-wrap">
+              <div class="vid-cover" onclick="loadVid(this, event)">
+                <img class="vid-thumb" src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMzIwIDE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE4MCIgZmlsbD0iIzFhMWEyZSIvPgogIDx0ZXh0IHg9IjE2MCIgeT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC13ZWlnaHQ9ImJvbGQiPk1PVU5UQUlOIENMSU1CRVIgVFJYPC90ZXh0PgogIDwhLS0gYW5jb3JhIFRSWCAtLT4KICA8cmVjdCB4PSIxNDUiIHk9IjI1IiB3aWR0aD0iMzAiIGhlaWdodD0iOCIgcng9IjMiIGZpbGw9IiM1NTUiLz4KICA8bGluZSB4MT0iMTYwIiB5MT0iMzMiIHgyPSIxNjAiIHkyPSI1NSIgc3Ryb2tlPSIjNzc3IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8bGluZSB4MT0iMTYwIiB5MT0iNTUiIHgyPSIyNDAiIHkyPSI4MCIgc3Ryb2tlPSIjZmY5ODAwIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1kYXNoYXJyYXk9IjUsMyIvPgogIDxsaW5lIHgxPSIxNjAiIHkxPSI1NSIgeDI9IjI3MCIgeTI9IjkwIiBzdHJva2U9IiNmZjk4MDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWRhc2hhcnJheT0iNSwzIi8+CiAgPCEtLSBjb3JwbyBlbSBwcmFuY2hhIGluY2xpbmFkYSAtLT4KICA8IS0tIG1hb3Mgbm8gY2hhbyAtLT4KICA8bGluZSB4MT0iODAiIHkxPSIxNDgiIHgyPSI4MCIgeTI9IjEzMCIgc3Ryb2tlPSIjYWFhIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxsaW5lIHgxPSIxMDgiIHkxPSIxNDgiIHgyPSIxMDgiIHkyPSIxMzAiIHN0cm9rZT0iI2FhYSIgc3Ryb2tlLXdpZHRoPSI2IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8IS0tIHRyb25jbyAtLT4KICA8bGluZSB4MT0iOTQiIHkxPSIxMzAiIHgyPSIyMDAiIHkyPSIxMDAiIHN0cm9rZT0iI2NjYyIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPCEtLSBjYWJlY2EgLS0+CiAgPGNpcmNsZSBjeD0iODIiIGN5PSIxMTgiIHI9IjExIiBmaWxsPSIjZGRkIi8+CiAgPCEtLSBwZXJuYSBkZSB0cmFzIGVzdGljYWRhIC0gcGVzIG5hcyBhbGNhcyAtLT4KICA8bGluZSB4MT0iMjAwIiB5MT0iMTAwIiB4Mj0iMjQwIiB5Mj0iODgiIHN0cm9rZT0iI2FhYSIgc3Ryb2tlLXdpZHRoPSI3IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8IS0tIGpvZWxobyBwdXhhZG8gYSBmcmVudGUgLS0+CiAgPGxpbmUgeDE9IjIwMCIgeTE9IjEwMCIgeDI9IjE3NSIgeTI9IjExOCIgc3Ryb2tlPSIjMDBDODUzIiBzdHJva2Utd2lkdGg9IjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogIDxjaXJjbGUgY3g9IjE3MiIgY3k9IjEyMiIgcj0iNiIgZmlsbD0iIzAwQzg1MyIvPgogIDwhLS0gc2V0YSBqb2VsaG8gLS0+CiAgPHRleHQgeD0iMTQ4IiB5PSIxMzgiIGZpbGw9IiMwMEM4NTMiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtZmFtaWx5PSJBcmlhbCI+4oaQIGpvZWxobzwvdGV4dD4KICA8dGV4dCB4PSIxNjAiIHk9IjE3MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzg4OCIgZm9udC1zaXplPSIxMCIgZm9udC1mYW1pbHk9IkFyaWFsIj5Ub2NhIHBhcmEgdmVyIG8gdmlkZW88L3RleHQ+Cjwvc3ZnPg==" alt="exercicio">
+                <div class="vid-overlay">
+                  <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                  <div class="ext-badge">&#9654; Ver no YouTube</div>
+                </div>
+              </div>
+            </div>
+            <div class="vid-steps"><p><strong>Como fazer:</strong> Em prancha com os pes nas alcas do TRX. Alterna puxar cada joelho em direcao ao peito. Core sempre contraido. O TRX aumenta a instabilidade e ativa mais o abdominal.</p></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">Progressao — 6 semanas</div>
+  <div class="pg">
+    <div class="pc"><div class="pw">Semanas 1-2</div><div class="pt">Adaptacao</div><div class="pd">Executa como indicado. Halteres minimos. Foco na tecnica.</div></div>
+    <div class="pc"><div class="pw">Semanas 3-4</div><div class="pt">Volume</div><div class="pd">+1 serie em cada exercicio. +2 kg. Boxe de 2 para 2,5 min.</div></div>
+    <div class="pc"><div class="pw">Semanas 5-6</div><div class="pt">Intensidade</div><div class="pd">Menos 15 seg descanso. Burpee com salto. Halteres ate 10 kg.</div></div>
+    <div class="pc" style="background:var(--gl);border-color:var(--g)"><div class="pw" style="color:var(--gd)">Dias livres</div><div class="pt" style="color:var(--gd)">Bicicleta</div><div class="pd" style="color:var(--g)">20-30 min ritmo leve. Acelera o emagrecimento.</div></div>
+  </div>
+</div>
+
+<!-- TIMER -->
+<div class="page" id="page-timer">
+  <div class="sec" style="margin-top:4px">Temporizador de descanso</div>
+  <div class="card">
+    <div style="padding:0 16px 16px;">
+      <div class="tbig">
+        <div class="tdisp" id="tdisp">00:45</div>
+        <div class="tlbl" id="tlbl">Pronto para comecar</div>
+      </div>
+      <div class="presets">
+        <button class="pset" onclick="setP(30,this)">30 seg</button>
+        <button class="pset sel" onclick="setP(45,this)">45 seg</button>
+        <button class="pset" onclick="setP(60,this)">1 min</button>
+        <button class="pset" onclick="setP(90,this)">1:30</button>
+        <button class="pset" onclick="setP(120,this)">2 min</button>
+      </div>
+      <div class="tbtns">
+        <button class="btn bno" onclick="resetT()">Reset</button>
+        <button class="btn bng" id="tbtn" onclick="toggleT()">Iniciar</button>
+      </div>
+    </div>
+  </div>
+  <div class="sec">Tempos de referencia</div>
+  <div class="card">
+    <div class="cb">
+      <div class="ex" style="cursor:default"><div class="ex-top" onclick="toggleVid(this.closest('.ex'))"><div class="ei"><div class="en">Forca (TRX, agachamento, flexao)</div></div><div class="er"><div class="es">60 seg</div></div></div></div>
+      <div class="ex" style="cursor:default"><div class="ex-top" onclick="toggleVid(this.closest('.ex'))"><div class="ei"><div class="en">Halteres (curl, desenvolvimento)</div></div><div class="er"><div class="es">45-60 seg</div></div></div></div>
+      <div class="ex" style="cursor:default"><div class="ex-top" onclick="toggleVid(this.closest('.ex'))"><div class="ei"><div class="en">Cardio intenso (boxe, corrida)</div></div><div class="er"><div class="es">30-45 seg</div></div></div></div>
+      <div class="ex" style="cursor:default"><div class="ex-top" onclick="toggleVid(this.closest('.ex'))"><div class="ei"><div class="en">Core (prancha, mountain climber)</div></div><div class="er"><div class="es">45 seg</div></div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-item active" onclick="sPage('home',this)"><span class="ti">&#127968;</span><span>Inicio</span></button>
+  <button class="tab-item" onclick="sPage('treinos',this)"><span class="ti">&#127947;</span><span>Treinos</span></button>
+  <button class="tab-item" onclick="sPage('timer',this)"><span class="ti">&#9201;</span><span>Timer</span></button>
+</div>
+
+<script>
+function toggleVid(el) {
+  var panel = el.querySelector('.vid-panel');
+  var che = el.querySelector('.eche');
+  var isOpen = panel.classList.contains('open');
+  document.querySelectorAll('.vid-panel.open').forEach(function(p) {
+    p.classList.remove('open');
+    p.closest('.ex').querySelector('.eche').classList.remove('open');
+  });
+  if (!isOpen) {
+    panel.classList.add('open');
+    che.classList.add('open');
+  }
+}
+
+function loadVid(coverEl, event) {
+  if(event) event.stopPropagation();
+  var panel = coverEl.closest('.vid-panel');
+  var vid = panel.getAttribute('data-vid');
+  var urls = {
+    'IODxDxX7oi4': 'https://www.youtube.com/results?search_query=flexao+de+bracos+como+fazer+iniciante',
+    'sCObdR_K_Mo': 'https://www.youtube.com/results?search_query=remada+TRX+como+fazer',
+    'U3HlEF_E9fo': 'https://www.youtube.com/results?search_query=agachamento+goblet+halter+como+fazer',
+    'ykJmrZ5v0Oo': 'https://www.youtube.com/results?search_query=rosca+biceps+halter+como+fazer',
+    'ASdvN_XEl_c': 'https://www.youtube.com/results?search_query=prancha+elevacao+braco+core',
+    '3KHxUBFBqmE': 'https://www.youtube.com/results?search_query=jab+direto+boxe+tecnica+iniciante',
+    'QOVaHwm-Q6U': 'https://www.youtube.com/results?search_query=avanco+lunge+como+fazer+correto',
+    'lkJPCQkpXgs': 'https://www.youtube.com/results?search_query=agachamento+TRX+iniciante',
+    '3VcKaXpzqRo': 'https://www.youtube.com/results?search_query=elevacao+lateral+elastico+ombros',
+    'tx5rgpDAGiQ': 'https://www.youtube.com/results?search_query=high+knees+corrida+estacionaria',
+    'qEwKCR5JCog': 'https://www.youtube.com/results?search_query=desenvolvimento+ombros+halter+de+pe',
+    'dZgVxmf6jkA': 'https://www.youtube.com/results?search_query=burpee+modificado+sem+salto+iniciante',
+    'nmwgirgXLYM': 'https://www.youtube.com/results?search_query=mountain+climber+TRX+core'
+  };
+  var url = urls[vid] || 'https://www.youtube.com/results?search_query='+vid;
+  window.open(url, '_blank');
+}
+
+function sPage(id, btn) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tab-item').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function sT(id, btn) {
+  ['A','B','C'].forEach(function(t){ document.getElementById('t-'+t).style.display='none'; });
+  document.querySelectorAll('.t-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('t-'+id).style.display='block';
+  btn.classList.add('active');
+}
+
+var tTot=45, tLeft=45, tRun=false, tInt=null;
+function updD(){
+  var m=Math.floor(tLeft/60), s=tLeft%60;
+  document.getElementById('tdisp').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+}
+function setP(s,btn){
+  document.querySelectorAll('.pset').forEach(function(p){p.classList.remove('sel');});
+  btn.classList.add('sel');
+  tTot=s; tLeft=s; tRun=false; clearInterval(tInt);
+  document.getElementById('tbtn').textContent='Iniciar';
+  updD(); document.getElementById('tlbl').textContent='Pronto para comecar';
+}
+function toggleT(){
+  if(tRun){
+    clearInterval(tInt); tRun=false;
+    document.getElementById('tbtn').textContent='Continuar';
+    document.getElementById('tlbl').textContent='Pausado';
+  } else {
+    if(tLeft===0){tLeft=tTot; updD();}
+    tRun=true;
+    document.getElementById('tbtn').textContent='Pausar';
+    document.getElementById('tlbl').textContent='A contar...';
+    tInt=setInterval(function(){
+      tLeft--; updD();
+      if(tLeft<=0){
+        clearInterval(tInt); tRun=false;
+        document.getElementById('tbtn').textContent='Iniciar';
+        document.getElementById('tlbl').textContent='Descansaste! Proxima serie.';
+        if('vibrate' in navigator) navigator.vibrate([400,100,400]);
+      }
+    },1000);
+  }
+}
+function resetT(){
+  clearInterval(tInt); tRun=false; tLeft=tTot; updD();
+  document.getElementById('tbtn').textContent='Iniciar';
+  document.getElementById('tlbl').textContent='Pronto para comecar';
+}
+</script>
+</body>
+</html>
